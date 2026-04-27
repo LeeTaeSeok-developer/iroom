@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { addDoc, collection, doc, getDoc, getDocs } from "firebase/firestore";
 import { onAuthStateChanged, signOut } from "firebase/auth";
@@ -85,7 +85,7 @@ function ImageUploadBox({
   );
 }
 
-export default function ManagerManualNewPage() {
+function ManagerManualNewPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -1368,5 +1368,23 @@ export default function ManagerManualNewPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function ManagerManualNewPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-[linear-gradient(180deg,#eef6ff_0%,#f8fbff_42%,#f4f7fb_100%)] px-5 py-8 text-slate-900">
+          <div className="mx-auto flex min-h-[70vh] items-center justify-center">
+            <div className="rounded-[28px] border border-slate-200 bg-white px-6 py-5 text-sm font-semibold text-slate-600 shadow-sm">
+              페이지 불러오는 중...
+            </div>
+          </div>
+        </main>
+      }
+    >
+      <ManagerManualNewPageContent />
+    </Suspense>
   );
 }
