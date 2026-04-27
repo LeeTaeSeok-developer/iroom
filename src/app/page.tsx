@@ -1,65 +1,182 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useDevice } from "../lib/useDevice";
+import SideMenu from "../components/SideMenu";
+import RecommendedKeywords from "../components/RecommendedKeywords";
+import KeywordPage from "../components/KeywordPage";
+import SmartConsultCard from "../components/SmartConsultCard";
+import FAQSection from "../components/FAQSection";
+import AIPage from "../components/AIPage";
+import FAQPage from "../components/FAQPage";
+import ProductHelpSection from "../components/ProductHelpSection";
+import BrandSection from "../components/BrandSection";
+import InfoSection from "../components/InfoSection";
+import PolicyPage from "../components/PolicyPage";
+import PartnerInquiryModal from "../components/PartnerInquiryModal";
+import StoreShortcutModal from "../components/StoreShortcutModal";
+import ItemQuestionPage from "../components/ItemQuestionPage";
+import HeroSection from "../components/HeroSection";
+import FloatingActionButtons from "../components/FloatingActionButtons";
 
 export default function Home() {
+
+
+
+  const router = useRouter();
+  const device = useDevice();
+
+  const [open, setOpen] = useState(false);
+  const [keyword, setKeyword] = useState<string | null>(null);
+  const [brand, setBrand] = useState<string | null>(null);
+  const [aiOpen, setAiOpen] = useState(false);
+  const [faqOpen, setFaqOpen] = useState(false);
+  const [policyType, setPolicyType] = useState<"as" | "return" | null>(null);
+  const [partnerOpen, setPartnerOpen] = useState(false);
+  const [storeOpen, setStoreOpen] = useState(false);
+  const [selectedQuestionItem, setSelectedQuestionItem] = useState<string | null>(null);
+  const [selectedManualItem, setSelectedManualItem] = useState<string | null>(null);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <main className="relative min-h-screen bg-[#f7f7f7] text-black">
+      {/* 상단 헤더 */}
+      <header className="sticky top-0 z-30 flex w-full items-center justify-between bg-white/95 px-6 py-4 backdrop-blur">
+        <h1 className="text-lg font-bold tracking-tight">IROOM</h1>
+
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          aria-label="메뉴 열기"
+          className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full text-2xl text-gray-700 transition hover:bg-gray-100 active:scale-95"
+        >
+          ☰
+        </button>
+      </header>
+
+      <HeroSection
+        onSearch={(value) => {
+          setBrand(null);
+          setKeyword(value.trim());
+        }}
+      />
+      
+
+      <RecommendedKeywords
+        onSelect={(selectedKeyword) => {
+          setBrand(null);
+          setKeyword(selectedKeyword);
+        }}
+      />
+
+      <SmartConsultCard onClick={() => setAiOpen(true)} />
+
+      <FAQSection onMore={() => setFaqOpen(true)} />
+
+      <SideMenu
+        open={open}
+        onClose={() => setOpen(false)}
+        onOpenAI={() => setAiOpen(true)}
+        onOpenFAQ={() => setFaqOpen(true)}
+        onScrollToBrand={() => {
+          document.getElementById("brand-section")?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }}
+        onScrollToProduct={() => {
+          document.getElementById("product-section")?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }}
+        onOpenAS={() => setPolicyType("as")}
+        onOpenReturn={() => setPolicyType("return")}
+        onOpenPartner={() => setPartnerOpen(true)}
+        onOpenStore={() => setStoreOpen(true)}
+        onOpenAdminLogin={() => {
+          setOpen(false);
+          router.push("/manager/login");
+        }}
+      />
+
+      <KeywordPage
+        keyword={keyword}
+        brand={brand}
+        onClose={() => {
+          setKeyword(null);
+          setBrand(null);
+        }}
+        onMenu={() => setOpen(true)}
+        onQuestion={(itemName) => setSelectedQuestionItem(itemName)}
+        onManual={(itemName: string) => setSelectedManualItem(itemName)}
+      />
+
+      {/*검색하면 나오는 제품에서 질문 누르면 나오는 페이지 */}
+      <ItemQuestionPage
+        itemName={selectedQuestionItem}
+        onClose={() => setSelectedQuestionItem(null)}
+        onMenu={() => setOpen(true)}
+      />
+
+      <AIPage open={aiOpen} onClose={() => setAiOpen(false)} />
+
+      {/*자주묻는 질문 더보기에 들어가면 나오는 페이지 */}
+      <FAQPage
+        open={faqOpen}
+        onClose={() => setFaqOpen(false)}
+        onMenu={() => setOpen(true)}
+      />
+
+      {/*브랜드로 상품찾기 부분 */}
+      <div id="brand-section">
+        <BrandSection
+          onSelect={(selectedBrand) => {
+            setKeyword(null);
+            setBrand(selectedBrand);
+          }}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      </div>
+
+      {/*도움이 필요한 상품을 선택하세요 섹션 */}
+      <div id="product-section">
+        <ProductHelpSection
+          onSelect={(item) => {
+            setBrand(null);
+            setKeyword(`# ${item}`);
+          }}
+        />
+      </div>
+
+      {/*맨아래 4개의 버튼이 있는 부분 */}
+      <InfoSection
+        onOpenAsPolicy={() => setPolicyType("as")}
+        onOpenReturnPolicy={() => setPolicyType("return")}
+        onOpenPartnerInquiry={() => setPartnerOpen(true)}
+        onOpenStoreShortcut={() => setStoreOpen(true)}
+      />
+
+      {/*맨아래 AS누르면 나오는 페이지 */}
+      <PolicyPage type={policyType} onClose={() => setPolicyType(null)} />
+
+      {/*제휴 문의 팝업 */}
+      <PartnerInquiryModal
+        open={partnerOpen}
+        onClose={() => setPartnerOpen(false)}
+      />
+
+      {/*공식 사이트 팝업 */}
+      <StoreShortcutModal
+        open={storeOpen}
+        onClose={() => setStoreOpen(false)}
+      />
+
+      <div className="fixed bottom-2 right-2 z-[10000] rounded bg-white/90 px-2 py-1 text-xs text-gray-500 shadow">
+        {device}
+      </div>
+
+      {/*오른쪽 동그라미 버튼 2개 섹션*/}
+      <FloatingActionButtons />
+    </main>
   );
 }
