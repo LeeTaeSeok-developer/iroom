@@ -42,7 +42,11 @@ export default function Home() {
     <main className="relative min-h-screen bg-[#f7f7f7] text-black">
       {/* 상단 헤더 */}
       <header className="sticky top-0 z-30 flex w-full items-center justify-between bg-white/95 px-6 py-4 backdrop-blur">
-        <h1 className="text-lg font-bold tracking-tight">IROOM</h1>
+        <img
+          src="brands\iroom.png"
+          alt="IROOM"
+          className="h-11 w-auto object-contain"
+        />
 
         <button
           type="button"
