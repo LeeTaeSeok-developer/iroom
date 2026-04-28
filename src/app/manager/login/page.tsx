@@ -82,24 +82,32 @@ export default function ManagerLoginPage() {
         pw
       );
 
-      const adminEmails = ["admin@iroom.com"];
+      const adminRef = doc(db, "admin_users", result.user.uid);
+      const adminSnap = await getDoc(adminRef);
 
-      if (!adminEmails.includes(result.user.email ?? "")) {
+      if (!adminSnap.exists()) {
         setError("관리자 계정만 로그인할 수 있습니다.");
         return;
       }
 
-      await saveAdminUser(
-        result.user.uid,
-        result.user.email ?? email.trim()
+      const adminData = adminSnap.data();
+
+      if (adminData.role !== "manager") {
+        setError("관리자 권한이 없습니다.");
+        return;
+      }
+
+      await setDoc(
+        adminRef,
+        {
+          email: result.user.email ?? email.trim(),
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true }
       );
 
       router.push("/manager");
     } catch (err: any) {
-      console.log("에러 코드:", err.code);
-      console.log("에러 메시지:", err.message);
-      console.log("현재 UID:", auth.currentUser?.uid);
-      console.log("현재 이메일:", auth.currentUser?.email);
       setError(getErrorMessage(err?.code ?? ""));
     } finally {
       setLoading(false);
